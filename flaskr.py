@@ -1,20 +1,42 @@
 # all the imports
+# coding:utf-8
+import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 
 from contextlib import closing
+from flask.ext.admin import Admin, BaseView, expose
+from flask.ext.admin.contrib.sqlamodel import ModelView
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+DATA_ROOT = os.path.join(BASE_DIR, 'data/flaskr.db')
 # configuration
-DATABASE = '/tmp/flaskr.db'
+DATABASE = DATA_ROOT
 DEBUG = True
-SECRET_KEY = 'development key'
+SECRET_KEY = '\x0f\x8d\xcc\xaeR\xfe\x90\x94\x9907\xbe\x97\xfb\x85\x90\xe9\xc5\xb2\x0e52\xa6v'
 USERNAME = 'admin'
 PASSWORD = 'default'
 
 # create our little application :)
+
+
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+admin = Admin(app, name=u'项目名称')
+
+# Add administrative views here
+class MyView(BaseView):
+    @expose('/')
+    def index(self):
+        return self.render('index.html')
+
+admin.add_view(MyView(name='Hello 1', endpoint='test1', category='Test'))
+admin.add_view(MyView(name='Hello 2', endpoint='test2', category='Test'))
+admin.add_view(MyView(name='Hello 3', endpoint='test3', category='Test'))
+# admin.add_view(ModelView(User, db.session))
+
 
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
